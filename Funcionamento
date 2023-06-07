@@ -1,0 +1,94 @@
+int botao1 = 9;
+int led1 = 6;
+int botao2 = 3;
+int led2 = 8;
+int ledCentral = 12;
+int PWM_MAX = 255;
+int PWM_MIN = 0;
+int TEMPO_MIN = 1000;
+int TEMPO_MAX = 7000;
+int FLASH = 150;
+int buzzer = 5;
+int tempo = 200;
+
+void setup() {
+  pinMode(led1, OUTPUT);
+  pinMode(led2, OUTPUT);
+  pinMode(botao1, INPUT);
+  pinMode(botao2, INPUT);
+  pinMode(buzzer, OUTPUT);
+
+  byte pwAtual = PWM_MAX;
+  analogWrite(led1, pwAtual);
+  analogWrite(led2, pwAtual);
+  delay(1000);
+   while(pwAtual > 0) {
+    pwAtual -= 17; 
+    analogWrite(led1, pwAtual);
+    analogWrite(led2, pwAtual);
+    delay(66);
+
+  }
+}
+void loop() {
+  unsigned int tempoRandomico = random(TEMPO_MIN, TEMPO_MAX);
+  delay(tempoRandomico); 
+  unsigned long millisInicial = millis(); 
+  unsigned long millis1;
+  unsigned long millis2;
+  bool botao1Pressionado = false;
+  bool botao2Pressionado = false;
+  bool led1Aceso = false;
+  bool led2Aceso = false;
+  while (!botao1Pressionado || !botao2Pressionado) { 
+    if (digitalRead(botao1) && !botao1Pressionado) { 
+      botao1Pressionado = true; 
+      millis1 = millis();
+      analogWrite(ledCentral, PWM_MIN); 
+    }
+    if (digitalRead(botao2) && !botao2Pressionado) { 
+      botao2Pressionado = true; 
+      millis2 = millis();
+      analogWrite(ledCentral, PWM_MIN); 
+    }
+    if (millis() - millisInicial > FLASH) {
+      if (!botao1Pressionado) { 
+        if (led1Aceso) {
+          analogWrite(ledCentral, PWM_MIN);
+        }
+        else {
+          analogWrite(ledCentral, PWM_MAX);
+          tone(buzzer, 10000, tempo);
+
+        }
+        led1Aceso = !led1Aceso; 
+      }
+      
+      if (!botao2Pressionado) { 
+        if (led2Aceso) {
+          analogWrite(ledCentral, PWM_MIN);
+        }
+        else {
+          analogWrite(ledCentral, PWM_MAX);
+          tone(buzzer, 10000, tempo);
+        }
+        led2Aceso = !led2Aceso; 
+      }
+    }
+  }
+  delay(2000);
+  if (millis1 != millis2) { 
+    if (millis1 < millis2) { 
+      analogWrite(led1, PWM_MAX); 
+    }
+    else {
+      analogWrite(led2, PWM_MAX); 
+    }
+  delay(2000);
+  analogWrite(led1, PWM_MIN);
+  analogWrite(led2, PWM_MIN);
+  analogWrite(ledCentral, PWM_MIN);
+  while(!digitalRead(botao1) && !digitalRead(botao2)) { } 
+}
+
+}
